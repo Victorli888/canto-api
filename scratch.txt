@@ -1,0 +1,11 @@
+phrase related queries
+GET /phrases/{id}/english
+GET /phrases/{id}/canto
+GET /phrases/{id}/
+PUT /phrases/{id}/canto - update canto translation
+POST /phrases - Add a new phrase entry
+
+
+
+POST /themes - Add new theme entry
+
