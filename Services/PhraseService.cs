@@ -10,6 +10,7 @@ public class PhraseService : IPhraseService
 {
     private readonly CantoApiContext _context;
     private readonly IMapper _mapper;
+    private readonly ILogger<PhraseService> _logger;
 
     public PhraseService(CantoApiContext context, IMapper mapper)
     {
@@ -20,31 +21,49 @@ public class PhraseService : IPhraseService
     public async Task<IEnumerable<PhraseDTO>> GetAllPhrasesAsync()
     {
         var phrases = await _context.Phrases
-            .Include(p => p.Theme)
+            .Select(p => new PhraseDTO
+            {
+                PhraseId = p.PhraseId,
+                Cantonese = p.Cantonese,
+                English = p.English,
+                ThemeId = p.ThemeId,
+                RootQuestionId = p.RootQuestionId,
+                ChallengeRating = p.ChallengeRating,
+                IsHidden = p.IsHidden
+            })
             .ToListAsync();
-        return _mapper.Map<IEnumerable<PhraseDTO>>(phrases);
+        return phrases;
     }
 
     public async Task<PhraseDTO> GetPhraseByIdAsync(int id)
     {
-        var phrase = await _context.Phrases
+        try
+        {
+            var phrase = await _context.Phrases
             .Include(p => p.Theme)
             .FirstOrDefaultAsync(p => p.PhraseId == id);
 
-        if (phrase == null)
-            throw new KeyNotFoundException($"Phrase with ID {id} not found.");
+            if (phrase == null)
+            {
+                throw new KeyNotFoundException($"Phrase with ID {id} not found.");
+            }
 
-        return _mapper.Map<PhraseDTO>(phrase);
+            _logger.LogInformation($"SQL Query: {_context.Phrases.Where(p => p.PhraseId == id).ToQueryString()}");
+
+            return _mapper.Map<PhraseDTO>(phrase);
+        }
+        
+        catch
+        {
+            _logger.LogError($"Error fetching phrase with ID {id}");
+            throw;
+        }
+
     }
 
     public async Task<IEnumerable<PhraseDTO>> GetPhrasesByThemeAsync(int themeId)
     {
-        var phrases = await _context.Phrases
-            .Include(p => p.Theme)
-            .Where(p => p.ThemeId == themeId)
-            .ToListAsync();
-
-        return _mapper.Map<IEnumerable<PhraseDTO>>(phrases);
+        throw new NotImplementedException();
     }
 
     public Task<PhraseDTO> CreatePhraseAsync(CreatePhraseDTO createPhraseDto)

@@ -7,17 +7,17 @@ namespace Models.Validation
     {
         public CreatePhraseValidator()
         {
-            RuleFor(x => x.ChineseTranslation)
+            RuleFor(x => x.Cantonese)
                 .NotEmpty()
                 .MaximumLength(255);
 
-            RuleFor(x => x.EnglishTranslation)
+            RuleFor(x => x.English)
                 .NotEmpty();
 
             RuleFor(x => x.ThemeId)
                 .GreaterThan(0);
 
-            RuleFor(x => x.ComplexityRating)
+            RuleFor(x => x.ChallengeRating)
                 .InclusiveBetween(1, 5);
         }
     }

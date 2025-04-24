@@ -6,9 +6,9 @@ public class Phrase
     public string Cantonese { get; set; }
     public string English { get; set; }
     public int ThemeId { get; set; }
-    public string ChallengeRating { get; set; }
+    public int ChallengeRating { get; set; }
     public int? RootQuestionId { get; set; }
-    public bool isHidden { get; set; }
+    public bool IsHidden { get; set; }
 
     // Navigation properties
     public Theme Theme { get; set; }

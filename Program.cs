@@ -108,6 +108,7 @@ app.MapGet("canto-api/v1", () => Results.Ok(new
     status = "running",
     timestamp = DateTime.UtcNow,
     documentation = "/canto-api/v1/swagger",
+    testDBConnection = "canto-api/v1/test/db-test"
 }));
 
 if (app.Environment.IsDevelopment())

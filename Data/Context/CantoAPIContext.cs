@@ -1,54 +1,40 @@
-namespace Data.Context
+namespace Data.Context;
+
+using Microsoft.EntityFrameworkCore;
+using Models.Domain;
+public class CantoApiContext : DbContext
 {
-    using Microsoft.EntityFrameworkCore;
-    using Models.Domain;
-    public class CantoApiContext : DbContext
+    public CantoApiContext(DbContextOptions<CantoApiContext> options)
+        : base(options)
     {
-        public CantoApiContext(DbContextOptions<CantoApiContext> options)
-            : base(options)
+    }
+
+    public DbSet<Phrase> Phrases { get; set; }
+    public DbSet<Theme> Themes { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Tell EF Core to use lowercase table names
+        modelBuilder.Entity<Phrase>()
+            .ToTable("phrases");
+
+        modelBuilder.Entity<Theme>()
+            .ToTable("themes");
+
+        modelBuilder.Entity<Phrase>(entity =>
         {
-        }
+            entity.ToTable("phrases");
+            
+            // Map C# property names to database property names
+            entity.Property(e => e.PhraseId).HasColumnName("phrase_id");
+            entity.Property(e => e.Cantonese).HasColumnName("cantonese");
+            entity.Property(e => e.English).HasColumnName("english");
+            entity.Property(e => e.ThemeId).HasColumnName("theme_id");
+            entity.Property(e => e.ChallengeRating).HasColumnName("challenge_rating");
+            entity.Property(e => e.RootQuestionId).HasColumnName("root_question_id");
+            entity.Property(e => e.IsHidden).HasColumnName("is_hidden");
 
-        public DbSet<Phrase> Phrases { get; set; }
-        public DbSet<Theme> Themes { get; set; }
-
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            // New in EF Core 9.0: Global type configurations
-            configurationBuilder
-                .Properties<string>()
-                .HaveMaxLength(1000);
-
-            configurationBuilder
-                .Properties<decimal>()
-                .HavePrecision(18, 2);
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Phrase>(entity =>
-            {
-                entity.HasKey(e => e.PhraseId);
-                entity.Property(e => e.Cantonese).IsRequired();
-                entity.Property(e => e.English).IsRequired();
-                
-                entity.HasOne(e => e.Theme)
-                      .WithMany(e => e.Phrases)
-                      .HasForeignKey(e => e.ThemeId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                // New in EF Core 9.0: Better index configuration
-                entity.HasIndex(e => e.Cantonese)
-                      .HasDatabaseName("IX_Phrases_ChineseTranslation");
-            });
-
-            modelBuilder.Entity<Theme>(entity =>
-            {
-                entity.HasKey(e => e.ThemeId);
-                entity.Property(e => e.ThemeName).IsRequired();
-            });
-        }
+            //TODO: Property mapping will be requried for themes table, We could use EF Naming Conventions instead.
+        });
     }
 }
