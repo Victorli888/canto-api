@@ -7,14 +7,25 @@ using Data.Context;
 using Services;
 using Services.Interfaces;
 using Microsoft.OpenApi.Models;
+using DotNetEnv;
+
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Loads environment variables from .env file
+builder.Configuration.AddEnvironmentVariables();
+
+// Loads Connection String from .env file
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? throw new InvalidOperationException("DATABASE_URL is not set");
+
+builder.Services.AddDbContext<CantoApiContext>(options => options.UseNpgsql(connectionString));
 
 // Add services to the container.
 builder.Services.AddControllers()
     .ConfigureApplicationPartManager(manager =>
     {
-        // Optional: Configure controller discovery
     });
 
 // Add this after AddControllers()
@@ -39,10 +50,6 @@ builder.Services.ConfigureSwaggerGen(options =>
 {
     options.CustomSchemaIds(type => type.ToString());
 });
-
-// Add DbContext
-builder.Services.AddDbContext<CantoApiContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
@@ -87,6 +94,11 @@ app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseAuthorization();
 app.MapControllers();
+
+app.MapGet("/", () => Results.Ok(new
+{
+    api_path = "/canto-api/v1"
+}));
 
 // Add this after your other route configurations
 app.MapGet("canto-api/v1", () => Results.Ok(new

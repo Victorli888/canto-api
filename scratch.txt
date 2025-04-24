@@ -1,11 +1,80 @@
-phrase related queries
-GET /phrases/{id}/english
-GET /phrases/{id}/canto
-GET /phrases/{id}/
-PUT /phrases/{id}/canto - update canto translation
+SQL Block
+CREATE TABLE phrases (
+    phrase_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cantonese TEXT NOT NULL,
+    english TEXT NOT NULL,
+    theme_id int4,
+    complexity_rating INT4,
+    root_question_id int4,
+    is_hidden bool
+);
+
+
+phrase related queries High level Overview:
+
+GET /phrases/{id} - gets all data for one phrase
+GET /phrases/random
+Query Parameters:
+- themeId          (optional: get random from specific theme)
+- challengeRating  (optional: get random with specific difficulty)
+
+PUT /phrases/{id} - update canto translation
 POST /phrases - Add a new phrase entry
+DELETE /phrase/{id} - Remove entry from Database
+
+# Phrase Endpoints
+GET    /canto-api/v1/phrases           - List all phrases (with filters)
+GET    /canto-api/v1/phrases/{id}      - Get specific phrase
+GET    /canto-api/v1/phrases/random    - Get random phrase
+POST   /canto-api/v1/phrases           - Create new phrase
+PUT    /canto-api/v1/phrases/{id}      - Update phrase
+DELETE /canto-api/v1/phrases/{id}      - Delete phrase
+
+GET /canto-api/v1/phrases?themeId=1&challengeRating=2
+Response:
+{
+    "data": [
+        {
+            "phraseId": 1,
+            "cantonese": "你好",
+            "english": "Hello",
+            "themeId": 1,
+            "theme": {
+                "id": 1,
+                "name": "Greetings"
+            },
+            "challengeRating": 2,
+            "isHidden": false
+        }
+        // ... more phrases
+    ],
+    "total": 10,
+    "page": 1,
+    "pageSize": 20
+}
+
+# Theme Endpoints
+GET    /canto-api/v1/themes           - List all themes
+GET    /canto-api/v1/themes/{id}      - Get specific theme
+POST   /canto-api/v1/themes           - Create new theme
+PUT    /canto-api/v1/themes/{id}      - Update theme
+DELETE /canto-api/v1/themes/{id}      - Delete theme
+
 
 
 
 POST /themes - Add new theme entry
 
+
+Small talk application
+Features
+Chatbox that displays Cantonese dialouge that is similar to a conversation you would be having with a buddy
+
+1) Provide Translations - English and Cantonese (Traditional)
+1.1) Provide a random Cantonese phrase to display
+1.2) Fetch based on filter Ranked by ChallageRating; Theme; 
+
+2) Provide a way to CRUD methods to operate on elements in or DB
+
+ Dont Focus on these Lets wait for the next release to provide these endpoints... 1.1.0
+Provide Conversation table which can possible to have CRUD operations on

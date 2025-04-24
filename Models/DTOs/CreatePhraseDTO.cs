@@ -1,4 +1,5 @@
 namespace Models.DTOs;
+
 public class CreatePhraseDTO
 {
     public string ChineseTranslation { get; set; }
